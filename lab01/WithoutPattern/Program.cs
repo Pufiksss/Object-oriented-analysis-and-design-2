@@ -105,11 +105,9 @@ public class DrawingCanvas : Control
     {
         if (Editor == null) return;
 
-        // Фон
         ctx.FillRectangle(new SolidColorBrush(Color.FromRgb(28, 38, 48)),
                           new Rect(0, 0, Bounds.Width, Bounds.Height));
 
-        // Сетка
         var gridPen = new Pen(new SolidColorBrush(Color.FromArgb(18, 255, 255, 255)), 1);
         for (double x = 0; x < Bounds.Width; x += 30)
             ctx.DrawLine(gridPen, new Point(x, 0), new Point(x, Bounds.Height));
@@ -214,7 +212,6 @@ public class MainWindow : Window
         grid.RowDefinitions.Add(new RowDefinition(1, GridUnitType.Star));
         grid.RowDefinitions.Add(new RowDefinition(28, GridUnitType.Pixel));
 
-        // ── Toolbar ───────────────────────────────────────────
         var toolbar = new StackPanel
         {
             Background = new SolidColorBrush(Color.FromRgb(22, 22, 28)),
@@ -284,7 +281,6 @@ public class MainWindow : Window
     private void DoDuplicate()
     {
         if (_selected == null) { Status("Сначала выберите фигуру!"); return; }
-        // ❌ DuplicateShape внутри делает if/else для каждого типа
         var copy = _editor.DuplicateShape(_selected);
         if (copy != null)
         {
