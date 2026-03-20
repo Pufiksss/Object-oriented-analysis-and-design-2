@@ -31,10 +31,15 @@ public interface IPrototype
 {
     IPrototype Clone();
 }
-  
+
 public abstract class ShapeModel : IPrototype
 {
-    ...   
+    public double X { get; set; }
+    public double Y { get; set; }
+    public Color FillColor { get; set; }
+    public Color BorderColor { get; set; }
+    public bool IsSelected { get; set; }
+
     protected ShapeModel(ShapeModel other)
     {
         X = other.X + 20;
@@ -43,24 +48,36 @@ public abstract class ShapeModel : IPrototype
         BorderColor = other.BorderColor;
         IsSelected = false;
     }
-    ...
+
+    protected ShapeModel() { }
+
+    public abstract IPrototype Clone();
+    public abstract void Draw(DrawingContext ctx);
+    public abstract bool HitTest(double mx, double my);
     
+    // ...
+}
+
 public class CircleModel : ShapeModel
 {
     public double Radius { get; set; }
     
-    public CircleModel(CircleModel other) : base(other)
+    public CircleModel() { }
+    
+    private CircleModel(CircleModel other) : base(other)
     {
         Radius = other.Radius;
     }
     
     public override IPrototype Clone() => new CircleModel(this);
+    
+    // ...
 }
 ```
 - Теперь DuplicateShape превращается в одну строку и не знает ни о каких конкретных типах:
 ```csharp
-public ShapeModel DuplicateShape(ShapeModel original)
-    => (ShapeModel)original.Clone();
+public IPrototype DuplicateShape(IPrototype original)
+    => original.Clone();
 ```
-- Диаграмма классов с применением паттерна Прототип:
+- Демонстрация применения паттерна "Прототип" на примере диаграммы классов:
 ![Диаграмма классов с применением паттерна Прототип:](diagram.png)

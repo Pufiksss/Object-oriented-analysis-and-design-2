@@ -181,9 +181,6 @@ public class DrawingCanvas : Control
     }
 }
 
-// ══════════════════════════════════════════════════════════════
-//  ГЛАВНОЕ ОКНО
-// ══════════════════════════════════════════════════════════════
 public class MainWindow : Window
 {
     private readonly GraphicEditor _editor = new();
@@ -202,7 +199,7 @@ public class MainWindow : Window
     public MainWindow()
     {
         _canvas = new DrawingCanvas { Editor = _editor };
-        Title = "Графический редактор  [БЕЗ паттерна Прототип]";
+        Title = "Графический редактор";
         Width = 1100;
         Height = 720;
         BuildUI();
@@ -240,15 +237,6 @@ public class MainWindow : Window
         foreach (var (c, n) in Colors_())
             toolbar.Children.Add(MakeColorBtn(c, n));
         toolbar.Children.Add(MakeSep());
-        toolbar.Children.Add(new TextBlock
-        {
-            Text = "ℹ Без паттерна:\nDuplicateShape знает\nо каждом типе!",
-            Foreground = new SolidColorBrush(Color.FromRgb(200, 150, 80)),
-            FontStyle = Avalonia.Media.FontStyle.Italic,
-            FontSize = 11,
-            Margin = new Thickness(8, 4),
-            TextWrapping = TextWrapping.Wrap
-        });
 
         grid.Children.Add(toolbar);
 
@@ -304,7 +292,6 @@ public class MainWindow : Window
             Deselect();
             _selected = copy;
             _selected.IsSelected = true;
-            Status("Скопировано (через if/else в DuplicateShape)");
             Refresh();
         }
     }

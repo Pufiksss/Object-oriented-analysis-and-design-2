@@ -10,7 +10,6 @@ public interface IPrototype
     IPrototype Clone();
 }
 
-
 public abstract class ShapeModel : IPrototype
 {
     public double X { get; set; }
@@ -31,18 +30,16 @@ public abstract class ShapeModel : IPrototype
     protected ShapeModel() { }
 
     public abstract IPrototype Clone();
-
     public abstract void Draw(DrawingContext ctx);
-
     public abstract bool HitTest(double mx, double my);
 
     protected void DrawHandles(DrawingContext ctx, double x, double y, double w, double h)
     {
         var pts = new Point[]
         {
-            new(x,       y),       new(x+w/2, y),    new(x+w,   y),
-            new(x+w,   y+h/2),     new(x+w,   y+h),  new(x+w/2, y+h),
-            new(x,     y+h),       new(x,     y+h/2)
+            new(x,     y),       new(x+w/2, y),    new(x+w,   y),
+            new(x+w,   y+h/2),   new(x+w,   y+h),  new(x+w/2, y+h),
+            new(x,     y+h),     new(x,     y+h/2)
         };
         var hFill = new SolidColorBrush(Colors.White);
         var hPen = new Pen(new SolidColorBrush(Color.FromRgb(80, 220, 120)), 1);
@@ -54,14 +51,8 @@ public abstract class ShapeModel : IPrototype
 public class CircleModel : ShapeModel
 {
     public double Radius { get; set; }
-
     public CircleModel() { }
-
-    private CircleModel(CircleModel other) : base(other)
-    {
-        Radius = other.Radius;
-    }
-
+    private CircleModel(CircleModel other) : base(other) { Radius = other.Radius; }
     public override IPrototype Clone() => new CircleModel(this);
 
     public override void Draw(DrawingContext ctx)
@@ -81,15 +72,8 @@ public class RectModel : ShapeModel
 {
     public double W { get; set; }
     public double H { get; set; }
-
     public RectModel() { }
-
-    private RectModel(RectModel other) : base(other)
-    {
-        W = other.W;
-        H = other.H;
-    }
-
+    private RectModel(RectModel other) : base(other) { W = other.W; H = other.H; }
     public override IPrototype Clone() => new RectModel(this);
 
     public override void Draw(DrawingContext ctx)
@@ -110,15 +94,8 @@ public class TriangleModel : ShapeModel
 {
     public double W { get; set; }
     public double H { get; set; }
-
     public TriangleModel() { }
-
-    private TriangleModel(TriangleModel other) : base(other)
-    {
-        W = other.W;
-        H = other.H;
-    }
-
+    private TriangleModel(TriangleModel other) : base(other) { W = other.W; H = other.H; }
     public override IPrototype Clone() => new TriangleModel(this);
 
     public override void Draw(DrawingContext ctx)
@@ -145,14 +122,8 @@ public class TriangleModel : ShapeModel
 public class StarModel : ShapeModel
 {
     public double Size { get; set; }
-
     public StarModel() { }
-
-    private StarModel(StarModel other) : base(other)
-    {
-        Size = other.Size;
-    }
-
+    private StarModel(StarModel other) : base(other) { Size = other.Size; }
     public override IPrototype Clone() => new StarModel(this);
 
     public override void Draw(DrawingContext ctx)
@@ -189,19 +160,21 @@ public class StarModel : ShapeModel
 
 public class GraphicEditor
 {
-    private readonly List<ShapeModel> _shapes = new();
+    private readonly List<IPrototype> _shapes = new();
 
-    public ShapeModel DuplicateShape(ShapeModel original)
-        => (ShapeModel)original.Clone();
+    public IPrototype DuplicateShape(IPrototype original)
+        => original.Clone();
 
-    public void Add(ShapeModel s) => _shapes.Add(s);
-    public void Remove(ShapeModel s) => _shapes.Remove(s);
-    public IReadOnlyList<ShapeModel> Shapes => _shapes;
+    public void Add(IPrototype s) => _shapes.Add(s);
+    public void Remove(IPrototype s) => _shapes.Remove(s);
 
-    public ShapeModel? HitTest(double x, double y)
+    public IReadOnlyList<IPrototype> Shapes => _shapes;
+
+    public IPrototype? HitTest(double x, double y)
     {
         for (int i = _shapes.Count - 1; i >= 0; i--)
-            if (_shapes[i].HitTest(x, y)) return _shapes[i];
+            if (_shapes[i] is ShapeModel sm && sm.HitTest(x, y))
+                return _shapes[i];
         return null;
     }
 }
@@ -224,7 +197,7 @@ public class DrawingCanvas : Control
             ctx.DrawLine(gridPen, new Point(0, y), new Point(Bounds.Width, y));
 
         foreach (var s in Editor.Shapes)
-            s.Draw(ctx);
+            if (s is ShapeModel sm) sm.Draw(ctx);
 
         var ft = new FormattedText(
             $"Фигур: {Editor.Shapes.Count}",
@@ -254,7 +227,7 @@ public class MainWindow : Window
     public MainWindow()
     {
         _canvas = new DrawingCanvas { Editor = _editor };
-        Title = "Графический редактор  [С паттерном Прототип]";
+        Title = "Графический редактор";
         Width = 1100;
         Height = 720;
         BuildUI();
@@ -281,7 +254,7 @@ public class MainWindow : Window
         toolbar.Children.Add(MakeToolBtn("⬤  Круг", "circle"));
         toolbar.Children.Add(MakeToolBtn("■  Прямоугольник", "rectangle"));
         toolbar.Children.Add(MakeToolBtn("▲  Треугольник", "triangle"));
-        toolbar.Children.Add(MakeToolBtn("★  Звезда", "star"));   // ✅ новый тип — не трогали редактор!
+        toolbar.Children.Add(MakeToolBtn("★  Звезда", "star"));
         toolbar.Children.Add(MakeToolBtn("↖  Выбрать", "select"));
         toolbar.Children.Add(MakeSep());
         toolbar.Children.Add(MakeActionBtn("⧉  Дублировать  [D]", DoDuplicate, Color.FromRgb(30, 80, 50)));
@@ -292,15 +265,6 @@ public class MainWindow : Window
         foreach (var (c, n) in Colors_())
             toolbar.Children.Add(MakeColorBtn(c, n));
         toolbar.Children.Add(MakeSep());
-        toolbar.Children.Add(new TextBlock
-        {
-            Text = "✅ С паттерном:\nDuplicate = 1 строка.\nНовый тип — редактор\nне трогать!",
-            Foreground = new SolidColorBrush(Color.FromRgb(80, 220, 140)),
-            FontStyle = Avalonia.Media.FontStyle.Italic,
-            FontSize = 11,
-            Margin = new Thickness(8, 4),
-            TextWrapping = TextWrapping.Wrap
-        });
 
         grid.Children.Add(toolbar);
 
@@ -347,12 +311,12 @@ public class MainWindow : Window
     private void DoDuplicate()
     {
         if (_selected == null) { Status("Сначала выберите фигуру!"); return; }
-        var copy = _editor.DuplicateShape(_selected);
+        var copy = _editor.DuplicateShape(_selected) as ShapeModel;
+        if (copy == null) return;
         _editor.Add(copy);
         Deselect();
         _selected = copy;
         _selected.IsSelected = true;
-        Status("Клонировано через Clone() — без if/else!");
         Refresh();
     }
 
@@ -380,7 +344,7 @@ public class MainWindow : Window
         if (_tool == "select")
         {
             Deselect();
-            _selected = _editor.HitTest(pos.X, pos.Y);
+            _selected = _editor.HitTest(pos.X, pos.Y) as ShapeModel;
             if (_selected != null)
             {
                 _selected.IsSelected = true;
@@ -437,7 +401,7 @@ public class MainWindow : Window
         (Color.FromRgb(100, 180, 255), "Синий"),
         (Color.FromRgb(100, 220, 140), "Зелёный"),
         (Color.FromRgb(255, 120, 100), "Красный"),
-        (Color.FromRgb(255, 200, 80),  "Жёлтый"),
+        (Color.FromRgb(255, 200,  80), "Жёлтый"),
         (Color.FromRgb(200, 120, 255), "Фиолетовый"),
     };
 
