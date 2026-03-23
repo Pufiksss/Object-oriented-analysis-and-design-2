@@ -1,0 +1,247 @@
+# ===================
+# Editor/IDE files
+# ===================
+
+# Visual Studio
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+!.vscode/*.json
+
+# IntelliJ IDEA / WebStorm / PyCharm / etc.
+.idea/
+*.iml
+*.iws
+out/
+!.mvn/wrapper/maven-wrapper.properties
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.externalToolBuilders/
+
+# Xcode
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Vim
+.*.swp
+*.swp
+
+# Emacs
+*~
+\#*\#
+
+# ===================
+# OS generated files
+# ===================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+*.tmp
+
+# Linux
+*~
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDB
+.AppleDesktop
+
+# ===================
+# Build artifacts
+# ===================
+
+# Java
+target/
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# Maven
+.mvn/timing.properties
+!.mvn/wrapper/maven-wrapper.jar
+
+# Gradle
+.gradle
+build/
+
+# C#
+obj/
+bin/
+*.userprefs
+*.csproj.user
+*.sln.cache
+
+# C++
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.pdb
+*.ilk
+*.msi
+*.msm
+*.msp
+*.sdf
+*.opensdf
+*.opendb
+ipch/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*venv/
+venv/
+env/
+ENV/
+.venv/
+.env/
+.Python
+python_env/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+.pytest_cache/
+.coverage
+.pytest_cache/
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.mo
+*.pot
+
+# ===================
+# Draw.io / Diagrams
+# ===================
+
+.$*.drawio.*
+*.drawio.bkp
+
+# ===================
+# Environment & Secrets
+# ===================
+
+.env
+.env*.local
+.envrc
+env.sh
+.env.sample
+
+# ===================
+# Logs & Temp files
+# ===================
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Temp files
+.tmp
+.temp
+~*
+*~
+
+# ===================
+# Package managers
+# ===================
+
+# Node.js / npm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm/
+
+# Python packages
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ===================
+# Additional patterns
+# ===================
+
+# Backup files
+*.bak
+*.backup
+*.old
+*.orig
+
+# Merge files
+*.merge_file_*.*
+
+# Database files (if any)
+*.db
+*.sqlite
+
+# Certificates
+*.pem
+*.key
+*.crt
+*.cert
