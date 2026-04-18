@@ -24,9 +24,6 @@ struct Book {
     std::string author;
 };
 
-// ============================================================
-// Подсистема 1: Driver — "скачивает" данные книги по URL
-// ============================================================
 class Driver {
     std::map<std::string, Book> data_ = {
         {"https://akniga.org/war",     {"War and Peace",  "Tolstoy"}},
@@ -83,17 +80,10 @@ public:
     int count() { return static_cast<int>(data_.size()); }
 };
 
-// ============================================================
-// UI-класс BookApp — БЕЗ ФАСАДА
-//
-// ПРОБЛЕМА: BookApp сам держит Driver и DB и вручную
-// координирует их во всех операциях: addBook, searchBooks и т.д.
-// Клиент знает о деталях обеих подсистем.
-// ============================================================
+
 class BookApp : public QWidget {
     Q_OBJECT
 
-    // Клиент вынужден держать ОБЕ подсистемы у себя
     Driver driver_;
     DB     db_;
 
@@ -107,7 +97,6 @@ public:
         setWindowTitle("DiBooks");
         resize(600, 520);
 
-        // --- Стилизация (MVP-уровень) ---
         setStyleSheet(R"(
             QWidget {
                 background-color: #1e1e2e;
@@ -193,12 +182,10 @@ public:
         root->setContentsMargins(16, 16, 16, 12);
         root->setSpacing(10);
 
-        // Заголовок
         auto* header = new QLabel("📚 DiBooks");
         header->setObjectName("header");
         root->addWidget(header);
 
-        // Блок поиска
         auto* searchRow = new QHBoxLayout();
         auto* searchLabel = new QLabel("🔍");
         searchInput_ = new QLineEdit();
@@ -212,28 +199,24 @@ public:
         searchRow->addWidget(resetBtn);
         root->addLayout(searchRow);
 
-        // Разделитель
         auto* sep = new QFrame();
         sep->setObjectName("separator");
         sep->setFrameShape(QFrame::HLine);
         root->addWidget(sep);
 
-        // Блок добавления
         auto* addRow = new QHBoxLayout();
         auto* urlLabel = new QLabel("🔗");
         urlInput_ = new QLineEdit();
-        urlInput_->setPlaceholderText("https://akniga.org/aboba");
+        urlInput_->setPlaceholderText("url");
         auto* addBtn = new QPushButton("➕ Добавить");
         addRow->addWidget(urlLabel);
         addRow->addWidget(urlInput_);
         addRow->addWidget(addBtn);
         root->addLayout(addRow);
 
-        // Список книг
         bookList_ = new QListWidget();
         root->addWidget(bookList_, 1);
 
-        // Нижний ряд: удалить + статус
         auto* bottomRow = new QHBoxLayout();
         statusLabel_ = new QLabel();
         statusLabel_->setObjectName("status");
@@ -253,17 +236,14 @@ public:
     }
 
 private slots:
-    // Клиент напрямую вызывает DB — знает о её существовании
     void loadLibrary() {
         bookList_->clear();
-        // Клиент знает, что библиотека лежит в DB
         for (const auto& book : db_.getLibrary())
             bookList_->addItem(
                 QString::fromStdString(book.author + " — " + book.title));
         updateStatus();
     }
 
-    // Клиент вручную координирует Driver + DB (без фасада)
     void onAddClicked() {
         std::string url = urlInput_->text().trimmed().toStdString();
         if (url.empty()) {
@@ -271,17 +251,14 @@ private slots:
             return;
         }
 
-        // Шаг 1: обратиться к Driver напрямую
         std::optional<Book> maybeBook = driver_.getBook(url);
 
-        // Шаг 2: вручную проверить результат
         if (!maybeBook.has_value()) {
             QMessageBox::critical(this, "Ошибка",
                                   "Не удалось получить данные книги");
             return;
         }
 
-        // Шаг 3: вручную сохранить в DB
         Book added = db_.addBook(maybeBook.value());
 
         bookList_->addItem(
@@ -290,7 +267,6 @@ private slots:
         updateStatus();
     }
 
-    // Клиент напрямую вызывает db_.removeBook() — знает о DB
     void onDeleteClicked() {
         int row = bookList_->currentRow();
         if (row < 0) {
@@ -298,13 +274,8 @@ private slots:
             return;
         }
 
-        // ВАЖНО: после поиска индексы в списке не совпадают с индексами в DB!
-        // Поэтому сначала делаем "сброс" фильтра.
-        // Клиент сам должен помнить про эту деталь — ещё один признак
-        // "протекающей абстракции" в версии без фасада.
         onResetClicked();
 
-        // Клиент сам обращается к DB напрямую
         bool ok = db_.removeBook(row);
         if (ok) {
             delete bookList_->takeItem(row);
@@ -312,8 +283,6 @@ private slots:
         updateStatus();
     }
 
-    // Новый функционал: поиск.
-    // Клиент снова напрямую лезет в DB — знает о её методах.
     void onSearchClicked() {
         std::string query = searchInput_->text().trimmed().toStdString();
         if (query.empty()) {
@@ -321,7 +290,6 @@ private slots:
             return;
         }
 
-        // Клиент сам вызывает метод DB
         std::vector<Book> found = db_.searchBooks(query);
 
         bookList_->clear();
@@ -341,7 +309,6 @@ private slots:
     }
 
     void updateStatus() {
-        // Клиент сам вызывает db_.count()
         statusLabel_->setText(QString("Всего книг: %1").arg(db_.count()));
     }
 };

@@ -233,7 +233,7 @@ public:
         auto* addRow = new QHBoxLayout();
         auto* urlLabel = new QLabel("🔗");
         urlInput_ = new QLineEdit();
-        urlInput_->setPlaceholderText("https://akniga.org/aboba");
+        urlInput_->setPlaceholderText("url");
         auto* addBtn = new QPushButton("➕ Добавить");
         addRow->addWidget(urlLabel);
         addRow->addWidget(urlInput_);
