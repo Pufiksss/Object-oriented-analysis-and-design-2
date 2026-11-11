@@ -17,6 +17,8 @@
 #include <QPainter>
 #include <QImage>
 #include <QPixmap>
+#include <QIcon>
+#include <QPolygonF>
 #include <QColor>
 #include <QPoint>
 #include <QRect>
@@ -144,6 +146,34 @@ public:
 
 
 
+static QIcon makePencilIcon() {
+    QPixmap pm(64, 64);
+    pm.fill(Qt::transparent);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.translate(32, 32);
+    p.rotate(135);
+    p.setPen(QPen(QColor("#11111b"), 2));
+
+    p.setBrush(QColor("#f9e2af"));
+    p.drawRect(QRectF(-18, -7, 30, 14));
+
+    p.setBrush(QColor("#f38ba8"));
+    p.drawRect(QRectF(-27, -7, 9, 14));
+
+    p.setBrush(QColor("#fab387"));
+    QPolygonF tip;
+    tip << QPointF(12, -7) << QPointF(28, 0) << QPointF(12, 7);
+    p.drawPolygon(tip);
+
+    p.setBrush(QColor("#11111b"));
+    QPolygonF lead;
+    lead << QPointF(22, -2.6) << QPointF(28, 0) << QPointF(22, 2.6);
+    p.drawPolygon(lead);
+
+    return QIcon(pm);
+}
+
 class EditorApp : public QMainWindow {
     Q_OBJECT
 
@@ -244,6 +274,8 @@ private:
     void buildToolbar() {
         auto* tb = addToolBar("Tools");
         tb->setMovable(false);
+        tb->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        tb->setIconSize(QSize(18, 18));
 
         auto addToolAction = [&](const QString& text, ShapeType type) {
             auto* a = tb->addAction(text);
@@ -258,7 +290,8 @@ private:
             return a;
         };
 
-        auto* pencil = addToolAction("✏️ Карандаш", ShapeType::Pencil);
+        auto* pencil = addToolAction("Карандаш", ShapeType::Pencil);
+        pencil->setIcon(makePencilIcon());
         addToolAction("📏 Линия",        ShapeType::Line);
         addToolAction("▭ Прямоугольник", ShapeType::Rect);
         addToolAction("◯ Овал",          ShapeType::Oval);

@@ -16,7 +16,7 @@
 - **`History`** — undo/redo, хранящие снимки холста.
 - **`FileIO`** — сохранение и загрузка изображения в PNG.
 
-**Постановка проблемы** Если клиент (`EditorApp`) работает со всеми четырьмя подсистемами напрямую, возникает **сильная связанность** между классом клиента и классами подсистем:
+**Постановка проблемы** Если клиент (`EditorApp`) работает со всеми четырьмя подсистемами напрямую, возникает **сильная зависимость** между классом клиента и классами подсистем:
 
 - Клиент вынужден сам держать у себя объекты `Canvas`, `ToolManager`, `History` и `FileIO`.
 - Клиент сам координирует их взаимодействие — практически каждое действие пользователя требует сразу нескольких подсистем (например, штрих карандаша = снимок в `History` + чтение настроек из `ToolManager` + рисование на `Canvas`).
@@ -37,13 +37,13 @@ class EditorApp : public QMainWindow {
     FileIO      io_;
     ...
     void onMousePress(QMouseEvent* e) {
-        // клиент сам пушит снимок в историю
+        // клиент сам добавляет снимок в историю
         history_.push(canvas_.image());
         startPoint_ = e->pos();
     }
 
     void onMouseMove(QMouseEvent* e) {
-        // клиент сам спрашивает ToolManager и сам зовёт Canvas
+        // клиент сам спрашивает ToolManager и сам вызывает Canvas
         canvas_.drawStroke(lastPoint_, e->pos(),
                            tools_.effectiveColor(), tools_.width());
     }
@@ -57,7 +57,7 @@ class EditorApp : public QMainWindow {
 ```
 
 ### Минусы
-- **Сильная связанность** клиента сразу с четырьмя подсистемами.
+- **Сильная зависимость** клиента сразу с четырьмя подсистемами.
 - Координация размазана по UI: один обработчик события мыши знает про `Canvas`, `ToolManager` и `History` одновременно.
 - При изменении интерфейса любой из подсистем переписывать придётся весь `EditorApp`.
 - Появление новых клиентов приведёт к дублированию кода.
@@ -78,21 +78,17 @@ class Editor {
     History     history_;
     FileIO      io_;
 public:
-    // настройки инструмента
     void setTool(ShapeType t);
     void setColor(const QColor& c);
     void setWidth(int w);
 
-    // рисование
     void beginAction();                               
     void strokeTo(const QPoint& from, const QPoint& to);
     void commitShape(const QPoint& from, const QPoint& to);
 
-    // история
     void undo();
     void redo();
 
-    // файлы
     void save(const QString& path);
     void load(const QString& path);
     void clearAll();
@@ -121,7 +117,7 @@ class EditorApp : public QMainWindow {
 ```
 
 ### Плюсы
-- **Слабая связанность** клиента с подсистемой: `EditorApp` зависит только от `Editor`.
-- Координация подсистем находится в одном месте — внутри фасада. Например, метод `Editor::load()` сам сохраняет снимок в `History` перед заменой изображения, и UI про это знать не должен.
-- Легко добавить новый UI (консольный, веб) — он будет использовать тот же фасад.
+- **Слабая зависимостьь** клиента с подсистемой: `EditorApp` зависит только от `Editor`.
+- Координация подсистем находится в одном месте — внутри фасада.
+- Легко добавить новый UI
 - При изменении `Canvas`, `ToolManager`, `History` или `FileIO` клиент трогать не нужно, правим только фасад.
